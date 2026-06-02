@@ -63,3 +63,28 @@ Combined Score = Votes × 3 + Replies × 0.4 + Views × 0.1
 - **Votes** (×3): highest weight, reflects community approval
 - **Replies** (×0.4): medium weight, reflects discussion activity
 - **Views** (×0.1): lowest weight, reflects exposure
+
+## Git 提交方式
+
+**推荐使用 SSH 方式**提交代码到 GitHub，更安全且无需重复输入密码：
+
+```bash
+# 初始化仓库
+git init
+
+# 配置用户信息
+git config user.name "jadragfly"
+git config user.email "331936128@qq.com"
+
+# 添加远程仓库（SSH 方式）
+git remote add origin git@github.com:jadragfly/trae-forum-scraper-playwright.git
+
+# 添加文件并提交
+git add .
+git commit -m "Commit message"
+
+# 推送到远程仓库
+git push -u origin master
+```
+
+**注意**：使用 SSH 方式前需确保 GitHub 账户已配置 SSH 密钥。
