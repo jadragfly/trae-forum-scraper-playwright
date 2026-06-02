@@ -88,3 +88,15 @@ git push -u origin master
 ```
 
 **注意**：使用 SSH 方式前需确保 GitHub 账户已配置 SSH 密钥。
+
+### .gitignore 配置
+
+推送前请确保 `.gitignore` 文件已排除以下文件夹：
+
+```bash
+# Trae 相关文件夹（不应提交到远程仓库）
+.trae/
+.codebuddy/
+```
+
+这些文件夹包含本地开发环境配置，不应提交到版本控制系统。

@@ -17,6 +17,7 @@ build/
 
 # Trae
 .trae/
+.codebuddy/
 
 # OS
 .DS_Store
