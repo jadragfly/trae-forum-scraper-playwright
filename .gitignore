@@ -24,5 +24,4 @@ build/
 Thumbs.db
 
 # Archive
-*.zip
 *.tar.gz
