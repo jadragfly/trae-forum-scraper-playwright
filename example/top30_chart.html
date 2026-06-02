@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trae技能创作赛 Top30 可视化</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#1a1a2e; color:#eee; font-family:system-ui,sans-serif; padding:20px; }
+h1 { text-align:center; color:#e94560; margin-bottom:8px; font-size:24px; }
+.subtitle { text-align:center; color:#888; font-size:13px; margin-bottom:24px; }
+.tabs { display:flex; justify-content:center; gap:4px; margin-bottom:16px; }
+.tabs button { background:#16213e; border:1px solid #333; color:#888; padding:8px 20px; border-radius:6px; cursor:pointer; font-size:13px; transition:0.15s; }
+.tabs button:hover { background:#1e2d4e; color:#ccc; }
+.tabs button.active { background:#e94560; color:#fff; border-color:#e94560; }
+.chart-box { display:none; background:#0d1b2a; border-radius:12px; padding:16px; border:1px solid #333; }
+.chart-box.active { display:block; }
+#chartA, #chartB { width:100%; height:560px; }
+#chartC { width:100%; height:800px; }
+.info-box { background:#0d1b2a; border-radius:12px; padding:16px; border:1px solid #333; margin-top:16px; font-size:13px; color:#aaa; line-height:1.8; }
+.info-box b { color:#e94560; }
+.data-ref { text-align:center; padding:20px; color:#555; font-size:12px; }
+</style>
+</head>
+<body>
+
+<h1>Trae 技能创作赛 Top 30</h1>
+<p class="subtitle">综合分 = 投票×3 + 回复×0.4 + 浏览×0.1</p>
+
+<div class="tabs">
+<button class="active" data-chart="A">三维对比柱状图</button>
+<button data-chart="B">综合得分排名</button>
+<button data-chart="C">散点图(投票 vs 浏览)</button>
+</div>
+
+<div class="chart-box active" id="boxA"><div id="chartA"></div></div>
+<div class="chart-box" id="boxB"><div id="chartB"></div></div>
+<div class="chart-box" id="boxC"><div id="chartC"></div></div>
+
+<div class="info-box" id="infoBox">
+  <b>评分算法：</b>综合分 = 投票数 × 3 + 回复数 × 0.4 + 浏览数 × 0.1<br>
+  <b>投票：</b>权重最高(×3)，反映社区认可度<br>
+  <b>回复：</b>权重(×0.4)，反映讨论热度<br>
+  <b>浏览：</b>权重最低(×0.1)，反映曝光量
+</div>
+
+<div class="data-ref">数据来源: trae_skills/RANKING.md</div>
+
+<script>
+const RAW_DATA = [{"rank": 1, "title": "【Skill 创作】 告别C..", "fullTitle": "【Skill 创作】 告别C盘爆满！跨时代AI磁盘健康顾问—SOLO桌面端+移动端不断打磨进化而成", "votes": 40, "replies": 12, "views": 340, "score": 158.8}, {"rank": 2, "title": "【Skill创作】家庭全域就..", "fullTitle": "【Skill创作】家庭全域就诊记录智能管理系统", "votes": 38, "replies": 10, "views": 263, "score": 144.3}, {"rank": 3, "title": "【Skill 创作】MP4 ..", "fullTitle": "【Skill 创作】MP4 to GIF —— 让你的录屏一秒变成可分享的动图", "votes": 36, "replies": 7, "views": 129, "score": 123.7}, {"rank": 4, "title": "【Skil创作】AI 写的东..", "fullTitle": "【Skil创作】AI 写的东西不像你？我把写作 DNA 做成了 Skill", "votes": 34, "replies": 8, "views": 225, "score": 127.7}, {"rank": 5, "title": "【Skill 创作】针对桌面..", "fullTitle": "【Skill 创作】针对桌面端 trae-desktop-add-skill，一键批量安装，告别逐个拖拽的 Skill 管理神器", "votes": 33, "replies": 3, "views": 191, "score": 119.3}, {"rank": 6, "title": "【Skill 创作】产品图片..", "fullTitle": "【Skill 创作】产品图片一键生成文案技能｜小红书 / 朋友圈 / 电商 / 短视频 多平台文案一键生成", "votes": 31, "replies": 58, "views": 842, "score": 200.4}, {"rank": 7, "title": "【Skill 创作】做了10..", "fullTitle": "【Skill 创作】做了100个AI短视频后，我把导演流程里最耗返工的中间层全显式化了——从剧本到出片的20个技能管线", "votes": 28, "replies": 8, "views": 302, "score": 117.4}, {"rank": 8, "title": "【Skill 创作】我做了一..", "fullTitle": "【Skill 创作】我做了一个帮研究生自动找选题、查文献、写综述的科研助手 Skill", "votes": 26, "replies": 5, "views": 331, "score": 113.1}, {"rank": 9, "title": "【Skill 创作】一个让大..", "fullTitle": "【Skill 创作】一个让大家都能写出小红书千赞笔记的 Skill", "votes": 22, "replies": 33, "views": 662, "score": 145.4}, {"rank": 10, "title": "【Skill 创作】kz-s..", "fullTitle": "【Skill 创作】kz-skill-creator：把 AI 技能变成“工程级系统”，才能做到 100% 零跑偏", "votes": 20, "replies": 33, "views": 484, "score": 121.6}, {"rank": 11, "title": "【Skill 创作】领导说“..", "fullTitle": "【Skill 创作】领导说“格式不规范”，我反手把 Word 排版做成了 Skill", "votes": 18, "replies": 3, "views": 323, "score": 87.5}, {"rank": 12, "title": "【Skill 创作】一键反堆..", "fullTitle": "【Skill 创作】一键反堆网页设计、自动生成标准化 DESIGN.md 文档的Skill技能", "votes": 17, "replies": 15, "views": 256, "score": 82.6}, {"rank": 13, "title": "【Skill 创作】我把产品..", "fullTitle": "【Skill 创作】我把产品从0到1的全生命周期方法论，做成了121个AI Agent Skills，让VibeCoding更加简单且具有深度", "votes": 17, "replies": 7, "views": 297, "score": 83.5}, {"rank": 14, "title": "【Skill 创作】别再让 ..", "fullTitle": "【Skill 创作】别再让 AI 骗你说项目能成了", "votes": 14, "replies": 20, "views": 360, "score": 86.0}, {"rank": 15, "title": "【skill 创作】我写了个..", "fullTitle": "【skill 创作】我写了个A股量化投研Skill，把散户从“瞎买瞎卖”里捞出来（回测、选股、盯新闻全自动）【全套目前16卷】目前只更新到第16卷，后续更新还会", "votes": 13, "replies": 20, "views": 367, "score": 83.7}, {"rank": 16, "title": "【Skill 创作】my-m..", "fullTitle": "【Skill 创作】my-music-skill：基于 MiniMax 的完整 AI 音乐创作 Skill，从写词、作曲到本地交付的skill", "votes": 13, "replies": 8, "views": 124, "score": 54.6}, {"rank": 17, "title": "【Skill 创作】生物学术..", "fullTitle": "【Skill 创作】生物学术图片误用.skill", "votes": 12, "replies": 11, "views": 70, "score": 47.4}, {"rank": 18, "title": "【Skill 创作】icon..", "fullTitle": "【Skill 创作】icon-design：AI 图标设计系统，从风格扫描到整套生成的一站式解决方案", "votes": 12, "replies": 10, "views": 144, "score": 54.4}, {"rank": 19, "title": "【SKILL创作】我做了一个..", "fullTitle": "【SKILL创作】我做了一个能把小说改编成 AI 漫剧前期所需要的生产资料做出来的 Skill", "votes": 12, "replies": 4, "views": 167, "score": 54.3}, {"rank": 20, "title": "【Skill 创作】一个让 ..", "fullTitle": "【Skill 创作】一个让 AI 接手新项目“秒变正规军”的初始化基线 Skill", "votes": 12, "replies": 4, "views": 155, "score": 53.1}, {"rank": 21, "title": "【Skill 创作】毕设不慌..", "fullTitle": "【Skill 创作】毕设不慌|一键搭建 3D 分子物理仿真？Trae SOLO 助你拿学分~", "votes": 12, "replies": 4, "views": 121, "score": 49.7}, {"rank": 22, "title": "【Skill 创作】AI芯片..", "fullTitle": "【Skill 创作】AI芯片赚了两辆M8，我用SOLO做了个基金「换仓导航」", "votes": 11, "replies": 28, "views": 489, "score": 93.1}, {"rank": 23, "title": "【Skill 创作】全功能一..", "fullTitle": "【Skill 创作】全功能一键反推图片提示词Skill", "votes": 11, "replies": 26, "views": 321, "score": 75.5}, {"rank": 24, "title": "【Skill 创作】做了3年..", "fullTitle": "【Skill 创作】做了3年散户，我用SOLO把量化机构的18因子评分体系，做成了一句话出个股量化HTML分析报告的Skill", "votes": 11, "replies": 24, "views": 293, "score": 71.9}, {"rank": 25, "title": "【Skill 创作】80后动..", "fullTitle": "【Skill 创作】80后动画片回忆助手 - 陪你重温童年美好时光", "votes": 11, "replies": 9, "views": 97, "score": 46.3}, {"rank": 26, "title": "【Skill 创作】一个结合..", "fullTitle": "【Skill 创作】一个结合传统玄学与 AI 推演的失物定位 Skill", "votes": 11, "replies": 8, "views": 97, "score": 45.9}, {"rank": 27, "title": "【Skill 创作】+ 把聊..", "fullTitle": "【Skill 创作】+ 把聊天学习的过程变成动态书籍的skill", "votes": 10, "replies": 22, "views": 172, "score": 56.0}, {"rank": 28, "title": "【Skill 创作】不卖保险..", "fullTitle": "【Skill 创作】不卖保险！不受保险代理人忽悠和误导！我结合十年工作经验做了一个智能保险顾问skill", "votes": 10, "replies": 22, "views": 164, "score": 55.2}, {"rank": 29, "title": "【Skill 创作】my-p..", "fullTitle": "【Skill 创作】my-planning-skill：让 AI 记住你的习惯，告别”每次都要从头解释”", "votes": 10, "replies": 9, "views": 112, "score": 44.8}, {"rank": 30, "title": "【Skill 创作】我做了一..", "fullTitle": "【Skill 创作】我做了一个帮自媒体人追热点、出选题的 Skill", "votes": 10, "replies": 8, "views": 126, "score": 45.8}];
+
+// 格式化标题
+function fmtTitle(t) {
+    // 去掉【Skill 创作】前缀
+    let title = t.fullTitle.replace(/【[^】]*】\s*/g, '').trim();
+    if (title.length > 24) title = title.substring(0, 22) + '…';
+    return title;
+}
+
+const names = RAW_DATA.map(t => '#' + t.rank + ' ' + fmtTitle(t));
+
+// === Tab 切换 ===
+document.querySelectorAll('.tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.chart-box').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('box' + btn.dataset.chart).classList.add('active');
+    setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 100);
+  });
+});
+
+// === Chart A: 三维对比柱状图 ===
+const chartA = echarts.init(document.getElementById('chartA'));
+chartA.setOption({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: { type: 'shadow' },
+    formatter: function(params) {
+      let idx = params[0].dataIndex;
+      let t = RAW_DATA[idx];
+      return '<b>#' + t.rank + ' ' + t.fullTitle + '</b><br>' +
+        '投票: ' + t.votes + ' 票<br>' +
+        '回复: ' + t.replies + ' 条<br>' +
+        '浏览: ' + t.views + ' 次<br>' +
+        '综合分: ' + t.score;
+    }
+  },
+  legend: { data: ['投票数', '回复数', '浏览数(÷10)'], textStyle: { color: '#aaa' } },
+  grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+  xAxis: { type: 'category', data: names, axisLabel: { rotate: 45, fontSize: 10, color: '#888' } },
+  yAxis: { type: 'value', axisLabel: { color: '#888' } },
+  series: [
+    {
+      name: '投票数',
+      type: 'bar',
+      data: RAW_DATA.map(t => t.votes),
+      itemStyle: { color: '#e94560' },
+      barWidth: 6
+    },
+    {
+      name: '回复数',
+      type: 'bar',
+      data: RAW_DATA.map(t => t.replies),
+      itemStyle: { color: '#0f3460' },
+      barWidth: 6
+    },
+    {
+      name: '浏览数(÷10)',
+      type: 'bar',
+      data: RAW_DATA.map(t => Math.round(t.views / 10)),
+      itemStyle: { color: '#533483' },
+      barWidth: 6
+    }
+  ]
+});
+
+// === Chart B: 综合得分排名 ===
+const chartB = echarts.init(document.getElementById('chartB'));
+chartB.setOption({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: { type: 'shadow' },
+    formatter: function(params) {
+      let idx = params[0].dataIndex;
+      let t = RAW_DATA[idx];
+      return '<b>#' + t.rank + ' ' + t.fullTitle + '</b><br>' +
+        '综合分: ' + t.score + '<br>' +
+        '投票: ' + t.votes + ' | 回复: ' + t.replies + ' | 浏览: ' + t.views;
+    }
+  },
+  grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+  xAxis: { type: 'category', data: names, axisLabel: { rotate: 45, fontSize: 10, color: '#888' } },
+  yAxis: { type: 'value', name: '综合分', nameTextStyle: { color: '#888' }, axisLabel: { color: '#888' } },
+  series: [{
+    name: '综合分',
+    type: 'bar',
+    data: RAW_DATA.map(t => t.score),
+    itemStyle: {
+      color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+        { offset: 0, color: '#e94560' },
+        { offset: 1, color: '#533483' }
+      ])
+    },
+    barWidth: 12,
+    label: {
+      show: true,
+      position: 'top',
+      fontSize: 9,
+      color: '#aaa',
+      formatter: function(p) { return RAW_DATA[p.dataIndex].score; }
+    }
+  }]
+});
+
+// === Chart C: 散点图 ===
+const chartC = echarts.init(document.getElementById('chartC'));
+chartC.setOption({
+  tooltip: {
+    formatter: function(params) {
+      let t = RAW_DATA[params.dataIndex];
+      return '<b>#' + t.rank + ' ' + t.fullTitle + '</b><br>' +
+        '投票: ' + t.votes + ' 票<br>' +
+        '回复: ' + t.replies + ' 条<br>' +
+        '浏览: ' + t.views + ' 次<br>' +
+        '综合分: ' + t.score;
+    }
+  },
+  grid: { left: '4%', right: '4%', bottom: '14%', containLabel: true },
+  xAxis: { type: 'value', name: '投票数', nameTextStyle: { color: '#888' }, axisLabel: { color: '#888' } },
+  yAxis: { type: 'value', name: '浏览数', nameTextStyle: { color: '#888' }, axisLabel: { color: '#888' } },
+  series: [{
+    name: '技能分布',
+    type: 'scatter',
+    data: RAW_DATA.map(t => [t.votes, t.views, t.replies, t.score]),
+    symbolSize: function(val) {
+      return Math.max(8, Math.min(32, val[2] * 0.8 + 8));
+    },
+    itemStyle: {
+      color: function(params) {
+        var val = params.data[3];
+        if (val >= 120) return '#e94560';
+        if (val >= 90) return '#e97f45';
+        if (val >= 60) return '#e9c545';
+        return '#45b7e9';
+      }
+    },
+    label: {
+      show: true,
+      position: 'right',
+      fontSize: 9,
+      color: '#888',
+      formatter: function(p) { return '#' + (p.dataIndex + 1); }
+    }
+  }]
+});
+
+window.addEventListener('resize', () => { chartA.resize(); chartB.resize(); chartC.resize(); });
+</script>
+</body>
+</html>

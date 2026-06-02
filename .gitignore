@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+venv/
+.env
+.env.local
+
+# Build outputs
+dist/
+build/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Trae
+.trae/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Archive
+*.zip
+*.tar.gz
